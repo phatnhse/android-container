@@ -59,4 +59,31 @@ source ~/.bashrc
 - If you want to stop all emulator: `adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done`
 
 ### Install gradle
+https://linuxize.com/post/how-to-install-gradle-on-ubuntu-18-04/
+
+- Download gradle-5.4.1: `wget https://services.gradle.org/distributions/gradle-5.4.1-bin.zip -P /tmp`
+- Unzip it in `/opt/gradle`: `unzip -d /opt/gradle /tmp/gradle-5.4.1-bin.zip`
+- Export the environment variables:
+```
+echo 'export GRADLE_HOME=/opt/gradle/gradle-5.4.1' >> ~/.bashrc
+echo 'export PATH=$PATH:$GRADLE_HOME/bin' >> ~/.bashrc   
+source ~/.bashrc
+```
+- Let's go to bin of gradle: `cd $GRADLE_HOME/bin`
+
+### Install gradlew
+- Let create a directory in /opt: mkdir /opt/gradlew
+- cd /opt/gradlew: 
+- Install gradle wrapper: `gradle wrapper --gradle-version 5.4.1 --distribution-type all`
+- Download dependencies for gradle: `gradle wrapper` 
+- Test it again: 
+```
+./gradlew
+``` 
+- Let's have it in `.bashrc`: `echo 'export PATH=$PATH:/opt/gradlew' >> ~/.bashrc`
+
+### Create volume and include the project directory into `android-container`
+- Add your source code into container by creating volume: `docker run --privileged -it --rm -v $PWD:/data phatphat bash`
+- Run test on that project: `gradlew build -p /data`
+
 
