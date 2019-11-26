@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function wait_emulator_to_be_ready() {
+  rm ~/.android/avd/test.avd/*.lock
+  adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
   emulator -avd test -no-audio -no-boot-anim -no-window -accel on -gpu off &
   boot_completed=false
   while [ "$boot_completed" == false ]; do
