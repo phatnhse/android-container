@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function wait_emulator_to_be_ready() {
+  emulator -avd test -no-audio -no-boot-anim -no-window -accel on -gpu off &
   boot_completed=false
   while [ "$boot_completed" == false ]; do
     status=$(adb wait-for-device shell getprop sys.boot_completed | tr -d '\r')
