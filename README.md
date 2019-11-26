@@ -1,5 +1,24 @@
 ### android-container
 
+### Setup docker to run as rootless
+- Run docker as non-root user in order to modify (generate build, cache,etc) without changing the permission on the source code.
+```
+Add group docker if it doesn't already exist
+- sudo groupadd docker
+
+Add user to group docker
+- sudo gpasswd -a $USER docker (use another user name if you don't want to use the current)
+
+Activate the changes on group docker
+- newgrp docker
+
+Test again:
+- docker run hello-world
+
+```
+
+ 
+
 - OS: `Ubuntu 18.04`
 - Image: `ubuntu` with tag `latest` (18.04)
 - Start ubuntu container: `docker run --privileged -dit --name android-container ubuntu`
