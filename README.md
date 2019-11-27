@@ -3,17 +3,10 @@
 ### Setup docker to run as rootless
 - Run docker as non-root user in order to modify (generate build, cache,etc) without changing the permission on the source code.
 ```
-Add group docker if it doesn't already exist
-- sudo groupadd docker
-
-Add user to group docker
-- sudo gpasswd -a $USER docker (use another user name if you don't want to use the current)
-
-Activate the changes on group docker
-- newgrp docker
-
-Test again:
-- docker run hello-world
+- sudo groupadd docker // Add group docker if it doesn't already exist
+- sudo gpasswd -a $USER docker // Add current user to group docker
+- newgrp docker // reload, or logout and login 
+- docker run hello-world // check if it works
 
 ```
 
