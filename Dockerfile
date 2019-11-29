@@ -27,13 +27,9 @@ RUN wget 'https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip' 
  && yes Y | /opt/android/tools/bin/sdkmanager --licenses \
  && echo "no" | /opt/android/tools/bin/avdmanager --verbose create avd --force --name "test" --device "pixel" --package "system-images;android-28;google_apis;x86" --tag "google_apis" --abi "x86"
 
-ENV GRADLE_HOME "/opt/gradle/gradle-5.4.1"
-ENV PATH "$PATH:$GRADLE_HOME/bin"
-ENV PATH "$PATH:/opt/gradlew"
-ENV ANDROID_HOME /opt/android
-ENV PATH "$PATH:${ANDROID_HOME}/emulator"
-ENV PATH "$PATH:$ANDROID_HOME/tools/bin"
-ENV PATH "$PATH:$ANDROID_HOME/platform-tools"
+ENV GRADLE_HOME=/opt/gradle/gradle-5.4.1 \
+    ANDROID_HOME=/opt/android
+ENV PATH "$PATH:$GRADLE_HOME/bin:/opt/gradlew:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
 ENV LD_LIBRARY_PATH "$ANDROID_HOME/emulator/lib64:$ANDROID_HOME/emulator/lib64/qt/lib"
 
 RUN emulator @test
