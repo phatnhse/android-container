@@ -6,7 +6,7 @@ WORKDIR /
 
 SHELL ["/bin/bash", "-c"]
 
-RUN apt update && apt install -y openjdk-8-jdk vim unzip libglu1 libpulse-dev libasound2 libc6  libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxi6  libxtst6 libnss3 wget
+RUN apt update && apt install -y openjdk-8-jdk git vim unzip libglu1 libpulse-dev libasound2 libc6  libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxi6  libxtst6 libnss3 wget
 
 ARG GRADLE_VERSION=5.4.1
 ARG ANDROID_SDK_VERSION=28
@@ -20,7 +20,7 @@ RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.
 
 RUN wget 'https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip' -P /tmp \
  && unzip -d /opt/android /tmp/sdk-tools-linux-4333796.zip \
- && yes Y | /opt/android/tools/bin/sdkmanager --install "platform-tools" "system-images;android-${ANDROID_SDK_VERSION};google_apis;x86" "platforms;android-${ANDROID_SDK_VERSION}" "build-tools;${ANDROID_SDK_VERSION}.0.3" "emulator" \
+ && yes Y | /opt/android/tools/bin/sdkmanager --install "platform-tools" "system-images;android-${ANDROID_SDK_VERSION};google_apis;x86" "platforms;android-${ANDROID_SDK_VERSION}" "build-tools;28.0.3" "emulator" \
  && yes Y | /opt/android/tools/bin/sdkmanager --licenses \
  && echo "no" | /opt/android/tools/bin/avdmanager --verbose create avd --force --name "test" --device "pixel" --package "system-images;android-${ANDROID_SDK_VERSION};google_apis;x86" --tag "google_apis" --abi "x86"
 
