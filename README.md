@@ -1,43 +1,60 @@
-## Lightweight Android Container
+# Lightweight Android Container
 
-#### First attempt: [Project Sunflower](https://github.com/android/sunflower)
+A lightweight Android Container to isolate the testing process. 
+
+* No Android Studio/GUI applications require
+* Ability to cache dependencies for later build.
+* Wipe everything out after the process
+
+### Motivation
+As the team is scaling up, increase CI machine power is a must! To build and run test for multiple branches, we have to isolate and run those processes independently. 
+
+By using docker container, it's easier to scale, maintain and stablize the testing process.
+
+### Build Steps 
+
+The sample that we're going to use is [Sunflower](https://github.com/android/sunflower).
+
 > A gardening app illustrating Android development best practices with Android Jetpack.
 
-Sunflower is currently configurated with `gradle-5.4.1` and `Android Build Tools v28`
+Sunflower is built and compiled with `gradle-5.4.1`, `Android API 28` and `Build tools v28.0.3`. 
 
-Build the docker image that works for this project:
+To run docker image that works for this project, run: 
+
 ```shell
 docker build \
 --build-arg GRADLE_VERSION=5.4.1 \
---build-arg ANDROID_SDK_VERSION=28 \
+--build-arg ANDROID_API_LEVEL=28 \
+--build-arg ANDROID_BUILD_TOOLS_LEVEL=28.0.3 \
 --build-arg EMULATOR_NAME=test \
--t android-container:28-5.4.1 .
+-t android-container:sunflower .
 ```
 
-Clone and cd to the project dir: `git clone https://github.com/android/sunflower && cd sunflower/`
+Then clone and go to top level directory: `git clone https://github.com/android/sunflower && cd sunflower/`
 
-Start to build the project
+Build project and run unit & UI tests:
+
 ```shell
-docker run --privileged -it --rm -v $PWD:/data android-container:28-5.4.1 \
-bash -c ". /start.sh && gradlew connectedAndroidTest -p /data"
+docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test && gradlew connectedAndroidTest -p /data"
 ```
 
-Here is result that I observed on my terminal
+Observe the result:
+
 ```shell
 > Task :app:connectedDebugAndroidTest
 
-com.google.samples.apps.sunflower.PlantDetailFragmentTest > testShareTextIntent[test(AVD) - 9] SKIPPED 
+com.google.samples.apps.sunflower.PlantDetailFragmentTest > testShareTextIntent[test(AVD) - 9] SKIPPED
 
 08:44:46 V/InstrumentationResultParser: INSTRUMENTATION_RESULT: stream=
-08:44:46 V/InstrumentationResultParser: 
+08:44:46 V/InstrumentationResultParser:
 08:44:46 V/InstrumentationResultParser: Time: 2.872
-08:44:46 V/InstrumentationResultParser: 
+08:44:46 V/InstrumentationResultParser:
 08:44:46 V/InstrumentationResultParser: OK (11 tests)
-08:44:46 V/InstrumentationResultParser: 
-08:44:46 V/InstrumentationResultParser: 
+08:44:46 V/InstrumentationResultParser:
+08:44:46 V/InstrumentationResultParser:
 08:44:46 V/InstrumentationResultParser: INSTRUMENTATION_CODE: -1
-08:44:46 V/InstrumentationResultParser: 
-08:44:46 I/XmlResultReporter: XML test result file generated at /data/app/build/outputs/androidTest-results/connected/TEST-test(AVD) - 9-app-.xml. Total tests 12, passed 11, ignored 1, 
+08:44:46 V/InstrumentationResultParser:
+08:44:46 I/XmlResultReporter: XML test result file generated at /data/app/build/outputs/androidTest-results/connected/TEST-test(AVD) - 9-app-.xml. Total tests 12, passed 11, ignored 1,
 08:44:46 V/ddms: execute 'am instrument -w -r   com.google.samples.apps.sunflower.test/androidx.test.runner.AndroidJUnitRunner' on 'emulator-5554' : EOF hit. Read: -1
 08:44:46 V/ddms: execute: returning
 08:44:46 V/ddms: execute: running pm uninstall com.google.samples.apps.sunflower.test
@@ -50,6 +67,10 @@ com.google.samples.apps.sunflower.PlantDetailFragmentTest > testShareTextIntent[
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 6.0.
 Use '--warning-mode all' to show the individual deprecation warnings.
 See https://docs.gradle.org/5.4.1/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 2m 4s
+66 actionable tasks: 6 executed, 60 up-to-date
+
 ```
 
-Cool, it works!
+Cool, it just takes 2.872 seconds to run 11 UI tests and everything is wiped out after testing!
