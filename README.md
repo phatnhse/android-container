@@ -2,14 +2,17 @@
 
 A lightweight Android Container to isolate the testing process. 
 
-* No Android Studio/GUI applications require
+* No Android Studio/GUI applications require.
+* Android emulator running on Docker container.
 * Ability to cache dependencies for later build.
-* Wipe everything out after the process
+* Wipeout everything after the process.
 
 ### Motivation
-As the team is scaling up, increase CI machine power is a must! To build and run test for multiple branches, we have to isolate and run those processes independently. 
+As the team is scaling up, increase CI machine power should be considered as a must! 
 
-By using docker container, it's easier to scale, maintain and stablize the testing process.
+By using docker container, it's easier to run multiple runners on difference branches hence speed up the development as well as productivity. 
+
+It's easy to scale, maintain and stabilize the testing processes.
 
 ### Build Steps 
 
