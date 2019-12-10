@@ -1,31 +1,31 @@
-# Lightweight Android Container
+# Build a Lightweight Docker Container For Android Testing
 
-A lightweight Android Container to isolate the testing process. 
+In this sample, we're going to build a lightweight Android container to isolate the testing process.
 
-* No Android Studio/GUI applications require.
-* Android emulator running on Docker container.
-* Ability to cache dependencies for later build.
-* Wipeout everything after the process.
+* No Android Studio/GUI applications required.
+* Android emulator runs on a Docker container.
+* Has ability to cache dependencies for later build.
+* Wipe out everything after the process.
 
 ### Motivation
 As the team is scaling up, increase CI machine power should be considered as a must! 
 
-By using docker container, it's easier to run multiple runners on difference branches hence speed up the development as well as productivity. 
+By using a Docker container, we can build and run tests for multiple feature branches, speeding up the development and increasing productivity.
 
-It's easy to scale, maintain and stabilize the testing processes.
+It's easy to scale, maintain and stabilize the CI processes.
 
 ### Build Steps 
 
 The sample that we're going to use is [Sunflower](https://github.com/android/sunflower).
 
-> A gardening app illustrating Android development best practices with Android Jetpack.
+> Sunflower is a gardening app illustrating Android development best practices with Android Jetpack.
 
-Sunflower is built and compiled with `gradle-5.4.1`, `Android API 28` and `Build tools v28.0.3`. 
+It is built with `gradle-5.4.1`, `Android API 28` and `Build tools v28.0.3`. 
 
-To run docker image that works for this project, run: 
+Build docker image with following arguments:
 
 ```shell
-docker build \
+$ docker build \
 --build-arg GRADLE_VERSION=5.4.1 \
 --build-arg ANDROID_API_LEVEL=28 \
 --build-arg ANDROID_BUILD_TOOLS_LEVEL=28.0.3 \
@@ -33,15 +33,21 @@ docker build \
 -t android-container:sunflower .
 ```
 
-Then clone and go to top level directory: `git clone https://github.com/android/sunflower && cd sunflower/`
+Clone and go to top level directory of sunflower:
 
-Build project and run unit & UI tests:
+```shell
+$ git clone https://github.com/android/sunflower \
+&& cd sunflower/
+```
+
+Mount the directory into container and run Gradle tasks:
 
 ```shell
 docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test && gradlew connectedAndroidTest -p /data"
 ```
 
-Observe the result:
+### Result
+Let see how it works: 
 
 ```shell
 > Task :app:connectedDebugAndroidTest
@@ -76,4 +82,6 @@ BUILD SUCCESSFUL in 2m 4s
 
 ```
 
-Cool, it just takes 2.872 seconds to run 11 UI tests and everything is wiped out after testing!
+Cool, it just takes 2.872 seconds to run 11 UI tests on my computer!
+
+Please be aware the container will be killed after the process. You can check the status with `docker ps -a`.
