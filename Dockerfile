@@ -17,7 +17,8 @@ RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.
  && unzip -d /opt/gradle /tmp/gradle-${GRADLE_VERSION}-bin.zip \
  && mkdir /opt/gradlew \
  && /opt/gradle/gradle-${GRADLE_VERSION}/bin/gradle wrapper --gradle-version ${GRADLE_VERSION} --distribution-type all -p /opt/gradlew  \
- && /opt/gradle/gradle-${GRADLE_VERSION}/bin/gradle wrapper -p /opt/gradlew
+ && /opt/gradle/gradle-${GRADLE_VERSION}/bin/gradle wrapper -p /opt/gradlew \
+ && /opt/gradlew/gradlew --version
 
 RUN wget 'https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip' -P /tmp \
  && unzip -d /opt/android /tmp/sdk-tools-linux-4333796.zip \
@@ -29,6 +30,7 @@ ENV GRADLE_HOME=/opt/gradle/gradle-$GRADLE_VERSION \
     ANDROID_HOME=/opt/android
 ENV PATH "$PATH:$GRADLE_HOME/bin:/opt/gradlew:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
 ENV LD_LIBRARY_PATH "$ANDROID_HOME/emulator/lib64:$ANDROID_HOME/emulator/lib64/qt/lib"
+ENV EMULATOR_NAME=$EMULATOR_NAME
 
 ADD start.sh /
 RUN chmod +x start.sh

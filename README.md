@@ -36,14 +36,13 @@ $ docker build \
 Clone and go to top level directory of sunflower:
 
 ```shell
-$ git clone https://github.com/android/sunflower \
-&& cd sunflower/
+$ git clone https://github.com/android/sunflower && cd sunflower/
 ```
 
 Mount the directory into container and run Gradle tasks:
 
 ```shell
-docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test && gradlew connectedAndroidTest -p /data"
+docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test connectedAndroidTest -p /data"
 ```
 
 ### Result
