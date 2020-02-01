@@ -14,6 +14,8 @@ By using a Docker container, we can build and run tests for multiple feature bra
 
 It's easy to scale, maintain and stabilize the CI processes.
 
+Checkout [my post on Medium](https://medium.com/better-programming/build-a-lightweight-docker-container-for-android-testing-2aa6bdaea422) for more detail!
+
 ### Build Steps 
 
 The sample that we're going to use is [Sunflower](https://github.com/android/sunflower).
