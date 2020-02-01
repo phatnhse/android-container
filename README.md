@@ -44,7 +44,7 @@ $ git clone https://github.com/android/sunflower && cd sunflower/
 Mount the directory into container and run Gradle tasks:
 
 ```shell
-docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test connectedAndroidTest -p /data"
+$ docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test connectedAndroidTest -p /data"
 ```
 
 ### Result
@@ -83,6 +83,6 @@ BUILD SUCCESSFUL in 2m 4s
 
 ```
 
-Cool, it just takes 2.872 seconds to run 11 UI tests on my computer!
+Cool! It just took 2.872 seconds to run 11 UI tests! 🎉
 
-Please be aware the container will be killed after the process. You can check the status with `docker ps -a`.
+Please be awared that the container will be killed after the process. You can verify with command `docker ps -aq`.
