@@ -14,17 +14,13 @@ By using a Docker container, we can build and run tests for multiple feature bra
 
 It's easy to scale, maintain and stabilize the CI processes.
 
-Checkout [my post on Medium](https://medium.com/better-programming/build-a-lightweight-docker-container-for-android-testing-2aa6bdaea422) for more detail!
-
 ### Build Steps 
 
 The sample that we're going to use is [Sunflower](https://github.com/android/sunflower).
 
 > Sunflower is a gardening app illustrating Android development best practices with Android Jetpack.
 
-It is built with `gradle-5.4.1`, `Android API 28` and `Build tools v28.0.3`. 
-
-Build docker image with following arguments:
+Sunflower uses `gradle-5.4.1`, `Android API 28` and `Build tools v28.0.3` so we will build our container with following command:
 
 ```shell
 $ docker build \
@@ -35,20 +31,18 @@ $ docker build \
 -t android-container:sunflower .
 ```
 
-Clone and go to top level directory of sunflower:
+Clone and go to top level directory of sunflower directory:
 
 ```shell
 $ git clone https://github.com/android/sunflower && cd sunflower/
 ```
 
-Mount the directory into container and run Gradle tasks:
-
+Mount `/sunflower` into container as `/data` and run `Gradle` tasks:
 ```shell
 $ docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test connectedAndroidTest -p /data"
 ```
 
-### Result
-Let see how it works: 
+### Result logs
 
 ```shell
 > Task :app:connectedDebugAndroidTest
@@ -85,4 +79,6 @@ BUILD SUCCESSFUL in 2m 4s
 
 Cool! It just took 2.872 seconds to run 11 UI tests! 🎉
 
-Please be awared that the container will be killed after the process. You can verify with command `docker ps -aq`.
+Run `docker ps -aq` to verify the android container has been wiped out after the process!
+
+Checkout [my post on Medium](https://medium.com/better-programming/build-a-lightweight-docker-container-for-android-testing-2aa6bdaea422) for more detail!
