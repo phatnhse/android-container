@@ -36,7 +36,7 @@ Check out these referenced directories to see how things are wired:
 
 ### Test Result
 
-You can see how this approach can dramatically increase your build speed. In the second build, it only take `55s` instead of `4m 25s` for doing same taks.
+The second build only tooks only 55s instead of 4m 25s for doing the same task.
 
 ![Build time comparision](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
 
@@ -46,10 +46,7 @@ You can see how this approach can dramatically increase your build speed. In the
 The sample that we're going to use is [Sunflower](https://github.com/android/sunflower). It uses `Android API 28` and `Build tools v28.0.3` so we will build our container with following command:
 
 ```shell
-docker build \
---build-arg ANDROID_API_LEVEL=28 \
---build-arg ANDROID_BUILD_TOOLS_LEVEL=28.0.3 \
--t android-container:sunflower .
+docker build -t android-container:sunflower .
 ```
 
 Clone and go to top level directory of sunflower directory:
