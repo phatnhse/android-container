@@ -13,7 +13,7 @@ You can either use Gradle Wrapper or Local Installation to perform desired tasks
 ### Understand Gradle Wrapper
 Gradle wrapper is basically a script that allow user to run the build with predefined version and settings. These distribution information is stored in `gradle/wrapper/gradle-wrapper.properties`
 
-![gradle wrapper properties](https://github.com/fastphat/android-container/blob/master/images/gradle-wrapper.png?raw=true)
+![gradle-wrapper-properties](https://raw.githubusercontent.com/fastphat/android-container/migrate-to-gradle-wrapper/images/gradle-wrapper.png)
 
 ### How to cache gradle distribution and build dependencies?
 By default all files downloaded under docker container doesn't persist if that container is removed. You can easily test whether the container is no longer exist by `docker ps -a`
@@ -27,7 +27,7 @@ ENV GRADLE_USER_HOME=/cache
 VOLUME $GRADLE_USER_HOME
 ```
 
-![docker volume](https://github.com/fastphat/android-container/blob/master/images/docker-volume.png?raw=true)
+![Image](https://github.com/fastphat/android-container/blob/migrate-to-gradle-wrapper/images/docker-volume.png?raw=true)
 
 Check out these referenced directories to see how things are wired:
 
@@ -38,7 +38,7 @@ Check out these referenced directories to see how things are wired:
 
 You can see how this approach can dramatically increase your build speed. In the second build, it only take `55s` instead of `4m 25s` for doing same taks.
 
-![Build time comparision](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
+![Image](https://github.com/fastphat/android-container/blob/migrate-to-gradle-wrapper/images/build-time.png?raw=true)
 
 
 # Build Steps 
@@ -65,5 +65,5 @@ docker run --privileged -it \
 --rm -v $PWD:/data \
 -v gradle-cache:/cache \
 android-container:sunflower \
-bash -c '. /start.sh && gradlew test connectedAndroidTest -p /data'
+bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
 ```
