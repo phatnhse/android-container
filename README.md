@@ -1,84 +1,69 @@
 # Build a Lightweight Docker Container For Android Testing
 
-In this sample, we're going to build a lightweight Android container to isolate the testing process.
+# Goals
 
 * No Android Studio/GUI applications required.
-* Android emulator runs on a Docker container.
-* Has ability to cache dependencies for later build.
-* Wipe out everything after the process.
+* Android emulator runs on a Docker container silently.
+* Has ability to cache dependencies to dramatically reduce build time.
 
-### Motivation
-As the team is scaling up, increase CI machine power should be considered as a must! 
 
-By using a Docker container, we can build and run tests for multiple feature branches, speeding up the development and increasing productivity.
+# Gradle
+You can either use Gradle Wrapper or Local Installation to perform desired tasks but I strongly recommend to use Wrapper to take advantages of version/environment combatability.
 
-It's easy to scale, maintain and stabilize the CI processes.
+### Understand Gradle Wrapper
+Gradle wrapper is basically a script that allow user to run the build with predefined version and settings. These distribution information is stored in `gradle/wrapper/gradle-wrapper.properties`
 
-### Build Steps 
+![gradle-wrapper-properties](https://raw.githubusercontent.com/fastphat/android-container/migrate-to-gradle-wrapper/images/gradle-wrapper.png)
 
-The sample that we're going to use is [Sunflower](https://github.com/android/sunflower).
+### How to cache gradle distribution and build dependencies?
+By default all files downloaded under docker container doesn't persist if that container is removed. You can easily test whether the container is no longer exist by `docker ps -a`
 
-> Sunflower is a gardening app illustrating Android development best practices with Android Jetpack.
+So in order to prevent gradle from downloading again and again, Docker offer a solution called [Volume](https://docs.docker.com/storage/). Volumes are typically directories or files on host filesystem and are accessible from both container and host machine. 
 
-Sunflower uses `gradle-5.4.1`, `Android API 28` and `Build tools v28.0.3` so we will build our container with following command:
+Says that the cached files are by default located under `GRADLE_USER_HOME`, you can persist them by creating and change target location to new responsible . With that, you can easily define the cache will be use in `Dockerfile`
+
+```
+ENV GRADLE_USER_HOME=/cache
+VOLUME $GRADLE_USER_HOME
+```
+
+![Image](https://github.com/fastphat/android-container/blob/migrate-to-gradle-wrapper/images/docker-volume.png?raw=true)
+
+Check out these referenced directories to see how things are wired:
+
+- On Macos: `screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty`
+- On Linux: under `~/var/lib/docker/volumes`
+
+### Test Result
+
+You can see how this approach can dramatically increase your build speed. In the second build, it only take `55s` instead of `4m 25s` for doing same taks.
+
+![Image](https://github.com/fastphat/android-container/blob/migrate-to-gradle-wrapper/images/build-time.png?raw=true)
+
+
+# Build Steps 
+
+The sample that we're going to use is [Sunflower](https://github.com/android/sunflower). It uses `Android API 28` and `Build tools v28.0.3` so we will build our container with following command:
 
 ```shell
-$ docker build \
---build-arg GRADLE_VERSION=5.4.1 \
+docker build \
 --build-arg ANDROID_API_LEVEL=28 \
 --build-arg ANDROID_BUILD_TOOLS_LEVEL=28.0.3 \
---build-arg EMULATOR_NAME=test \
 -t android-container:sunflower .
 ```
 
 Clone and go to top level directory of sunflower directory:
 
 ```shell
-$ git clone https://github.com/android/sunflower && cd sunflower/
+git clone https://github.com/android/sunflower && cd sunflower/
 ```
 
-Mount `/sunflower` into container as `/data` and run `Gradle` tasks:
-```shell
-$ docker run --privileged -it --rm -v $PWD:/data android-container:sunflower bash -c ". /start.sh && gradlew test connectedAndroidTest -p /data"
-```
-
-### Result logs
+Mount `/sunflower` into container as `/data`, name volume `/cache` as `gradle-cache` and run all tests:
 
 ```shell
-> Task :app:connectedDebugAndroidTest
-
-com.google.samples.apps.sunflower.PlantDetailFragmentTest > testShareTextIntent[test(AVD) - 9] SKIPPED
-
-08:44:46 V/InstrumentationResultParser: INSTRUMENTATION_RESULT: stream=
-08:44:46 V/InstrumentationResultParser:
-08:44:46 V/InstrumentationResultParser: Time: 2.872
-08:44:46 V/InstrumentationResultParser:
-08:44:46 V/InstrumentationResultParser: OK (11 tests)
-08:44:46 V/InstrumentationResultParser:
-08:44:46 V/InstrumentationResultParser:
-08:44:46 V/InstrumentationResultParser: INSTRUMENTATION_CODE: -1
-08:44:46 V/InstrumentationResultParser:
-08:44:46 I/XmlResultReporter: XML test result file generated at /data/app/build/outputs/androidTest-results/connected/TEST-test(AVD) - 9-app-.xml. Total tests 12, passed 11, ignored 1,
-08:44:46 V/ddms: execute 'am instrument -w -r   com.google.samples.apps.sunflower.test/androidx.test.runner.AndroidJUnitRunner' on 'emulator-5554' : EOF hit. Read: -1
-08:44:46 V/ddms: execute: returning
-08:44:46 V/ddms: execute: running pm uninstall com.google.samples.apps.sunflower.test
-08:44:46 V/ddms: execute 'pm uninstall com.google.samples.apps.sunflower.test' on 'emulator-5554' : EOF hit. Read: -1
-08:44:46 V/ddms: execute: returning
-08:44:46 V/ddms: execute: running pm uninstall com.google.samples.apps.sunflower
-08:44:46 V/ddms: execute 'pm uninstall com.google.samples.apps.sunflower' on 'emulator-5554' : EOF hit. Read: -1
-08:44:46 V/ddms: execute: returning
-
-Deprecated Gradle features were used in this build, making it incompatible with Gradle 6.0.
-Use '--warning-mode all' to show the individual deprecation warnings.
-See https://docs.gradle.org/5.4.1/userguide/command_line_interface.html#sec:command_line_warnings
-
-BUILD SUCCESSFUL in 2m 4s
-66 actionable tasks: 6 executed, 60 up-to-date
-
+docker run --privileged -it \
+--rm -v $PWD:/data \
+-v gradle-cache:/cache \
+android-container:sunflower \
+bash -c '. /start.sh && gradlew test connectedAndroidTest -p /data'
 ```
-
-Cool! It just took 2.872 seconds to run 11 UI tests! 🎉
-
-Run `docker ps -aq` to verify the android container has been wiped out after the process!
-
-Checkout [my post on Medium](https://medium.com/better-programming/build-a-lightweight-docker-container-for-android-testing-2aa6bdaea422) for more detail!
