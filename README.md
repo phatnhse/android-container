@@ -65,5 +65,5 @@ docker run --privileged -it \
 --rm -v $PWD:/data \
 -v gradle-cache:/cache \
 android-container:sunflower \
-bash -c '. /start.sh && gradlew test connectedAndroidTest -p /data'
+bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
 ```
