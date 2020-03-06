@@ -20,8 +20,7 @@ ARG ANDROID_SDK_VERSION="sdk-tools-linux-4333796.zip"
 ARG ANDROID_SDK_PACKAGES="${ANDROID_EMULATOR_PACKAGE_ARM} ${ANDROID_EMULATOR_PACKAGE_x86} ${ANDROID_PLATFORM_VERSION} platform-tools emulator"
 
 RUN wget https://dl.google.com/android/repository/${ANDROID_SDK_VERSION} -P /tmp && \
-    unzip -d /opt/android /tmp/${ANDROID_SDK_VERSION} && \
-    rm /tmp/${ANDROID_SDK_VERSION}
+    unzip -d /opt/android /tmp/${ANDROID_SDK_VERSION}
 ENV ANDROID_HOME=/opt/android
 ENV PATH "$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
 
