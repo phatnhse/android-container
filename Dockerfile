@@ -13,9 +13,10 @@ ENV GRADLE_USER_HOME=/cache
 VOLUME $GRADLE_USER_HOME
 
 # android 
+ARG ANDROID_PLARFORM_VERSION="platforms;android-R"
 ARG ANDROID_EMULATOR_PACKAGE="system-images;android-R;google_apis;x86"
 ARG ANDROID_SDK_VERSION="sdk-tools-linux-4333796.zip"
-ARG ANDROID_SDK_PACKAGES="${ANDROID_EMULATOR_PACKAGE} platform-tools emulator"
+ARG ANDROID_SDK_PACKAGES="${ANDROID_EMULATOR_PACKAGE} ${ANDROID_PLARFORM_VERSION} platform-tools emulator"
 
 RUN wget https://dl.google.com/android/repository/${ANDROID_SDK_VERSION} -P /tmp && \
     unzip -d /opt/android /tmp/${ANDROID_SDK_VERSION} && \
