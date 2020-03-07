@@ -1,5 +1,7 @@
 # Build a Lightweight Docker Container For Android Testing
 
+[![Build Status](https://travis-ci.com/fastphat/android-container.svg?branch=master)](https://travis-ci.com/fastphat/android-container)
+
 # Goals
 
 * No Android Studio/GUI applications required.
