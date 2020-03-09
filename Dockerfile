@@ -6,15 +6,15 @@ WORKDIR /
 
 SHELL ["/bin/bash", "-c"]
 
-RUN apt update && apt install -y openjdk-8-jdk wget unzip libglu1 libpulse-dev libasound2 libc6  libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxi6  libxtst6 libnss3
+RUN apt update && apt install -y cpu-checker openjdk-8-jdk wget unzip libglu1 libpulse-dev libasound2 libc6  libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxi6  libxtst6 libnss3
 
 # gradle
 ENV GRADLE_USER_HOME=/cache
 VOLUME $GRADLE_USER_HOME
 
 # android 
-ARG ANDROID_PLARFORM_VERSION="platforms;android-R"
 ARG ANDROID_EMULATOR_PACKAGE="system-images;android-R;google_apis;x86"
+ARG ANDROID_PLARFORM_VERSION="platforms;android-R"
 ARG ANDROID_SDK_VERSION="sdk-tools-linux-4333796.zip"
 ARG ANDROID_SDK_PACKAGES="${ANDROID_EMULATOR_PACKAGE} ${ANDROID_PLARFORM_VERSION} platform-tools emulator"
 
