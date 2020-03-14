@@ -11,10 +11,10 @@
 
 
 # Gradle
-You can either use Gradle Wrapper or Local Installation to perform desired tasks but IMO, you should choose first option whenever it's possible, to gain the following benefits:
+You can either use Gradle Wrapper or Local Installation to perform desired tasks but IMO, you should choose first option whenever it's because of these following reasons:
 
 * Reliable. Different users get the same build result on a given Gradle version.
-* Configurable. Let's say that you want to provision a new version of Gradle to different users and execution environments (IDE, CI machine, etc), imagin how easy it is when people just needs to get the lastest configs, Wrapper will take care the rest.
+* Configurable. Let's say that you want to provision a new version of Gradle to different users and execution environments (IDE, CI machine, etc), you only need to update the config file, Wrapper will take care the rest.
 
 
 ### Understand Gradle Wrapper
@@ -22,14 +22,14 @@ Gradle wrapper is simply a script that allow user to run the build with predefin
 
 ![gradle wrapper properties](https://github.com/fastphat/android-container/blob/master/images/gradle-wrapper.png?raw=true)
 
-To change the version of Gradle Wrapper, grab one at [https://services.gradle.org/distributions/](https://services.gradle.org/distributions/) and update value of `distributionUrl`.
+To change the version of Gradle Wrapper, grab one at [https://services.gradle.org/distributions/](https://services.gradle.org/distributions/) and update `distributionUrl`.
 
 ### How to cache gradle distribution and build dependencies?
 By default all files downloaded under docker container doesn't persist if that container is removed. Therefore, Gradle needs to download it's distribution and build dependencies for every build. 
 
-In order to prevent that behavior, Docker offers a solution called [Volume](https://docs.docker.com/storage/). Volumes are typically directories or files on host filesystem and are accessible from both container and host machine. That mean they will not be removed after the container is no longer exist.
+In order to prevent that behavior, Docker offers a solution called [Volume](https://docs.docker.com/storage/). Volumes are typically directories or files on host filesystem and are accessible from both container and host. That mean they will not be removed after the container is wiped out.
 
-The Gradle cached files are by default located under `GRADLE_USER_HOME`, which is `/`, so you can persist them in another directory, for instance, `/cache`. See how volume are defined as following:
+The Gradle cached files are by default located under `GRADLE_USER_HOME`, which is `/`, so you can keep it there and move them to another directory, just make sure to define a volume for that path. 
 
 ```
 ENV GRADLE_USER_HOME=/cache
@@ -50,7 +50,7 @@ Some useful commands for Docker volume:
 
 ### Cached Gradle Test Result
 
-The second build only tooks only 55s instead of 4m 25s for doing the same task. 
+The second build only tooks only 55s instead of 4m 25s for doing the same task. In other words, we save more than 3m for redownload Gradle distribution and app dependencies.
 
 ![build time comparision](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
 
@@ -58,7 +58,22 @@ The second build only tooks only 55s instead of 4m 25s for doing the same task.
 
 ![warning emulator](https://github.com/fastphat/android-container/blob/master/images/arm.png?raw=true)
 
-You probably see this prompt when booting an ARM-based emulator. They were old and deprecated since Android SDK Level 25. In the contrary, x86 (or x86_64) emulators are 10x faster. However, it requires your host to have hardware acceleration (HAXM on Mac & Windows, QEMU on Linux). In the context of this repo, I won't go too detail about architecture defination but focus more on improving the stability and perfomance of Android Emulator when perfoming UI tests.
+You probably see this prompt when booting an ARM-based emulator. They were old and deprecated since Android SDK Level 25. In the contrary, x86 (or x86_64) emulators are 10x faster. However, it requires your host to have hardware acceleration (HAXM on Mac & Windows, QEMU on Linux). 
+
+I won't go too detail about architecture defination but focus more on improving the stability and perfomance of Android Emulator when perfoming UI tests. 
+
+### Auto select right Emulator Arch
+The script below simply checks if host system supports Hardware Accelerator and KVM. If the answer is yes, there you go, x86 Emulator. If it is not, let's go with ARM Emulator then.
+
+```shell
+  cpu_support_hardware_acceleration=$(grep -cw ".*\(vmx\|svm\).*" /proc/cpuinfo)
+  kvm_support=$(kvm-ok)
+
+  emulator_name=${EMULATOR_NAME_ARM}
+  if [ "$cpu_support_hardware_acceleration" != 0 ] && [ "$kvm_support" != *"NOT"* ]; then
+    emulator_name=${EMULATOR_NAME_x86}
+  fi
+```
 
 ### Avoid Flaky Tests
 Long story short: Disable animation when Android emulator is fully loaded and ready to use.
@@ -94,7 +109,7 @@ disable_animation
 
 ```
 
-There are few additional adb commands that might work for you.
+There are few additional adb commands might suit for you in some cases.
 
 ```shell
 # Disable soft keyboard
