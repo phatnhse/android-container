@@ -14,4 +14,6 @@ install:
 script:
   - docker build -q -t android-container:sunflower .
   - git clone https://github.com/android/sunflower && cd sunflower
+  - while sleep 5m; do echo "=====[ $SECONDS seconds, buildroot still building... ]====="; done &
   - docker run --privileged -it --rm -v $PWD:/data -v gradle-cache:/cache android-container:sunflower bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
+  - kill %1
