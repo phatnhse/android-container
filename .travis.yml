@@ -14,5 +14,5 @@ script:
   - while sleep 5m; do echo "=====[ $SECONDS seconds, buildroot still building... ]====="; done &
   - docker build -q -t android-container:sunflower .
   - git clone https://github.com/android/sunflower && cd sunflower
-  - docker run --privileged -it --rm -v $PWD:/data -v gradle-cache:/cache android-container:sunflower bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
+  - docker run --privileged -it --rm -v $PWD:/data -v gradle-cache:/cache android-container:sunflower bash -c '/data/gradlew test -p /data'
   - kill %1
