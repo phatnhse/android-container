@@ -25,8 +25,10 @@ ENV ANDROID_HOME=/opt/android
 ENV PATH "$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
 
 # sdkmanager
-RUN yes Y | sdkmanager --install ${ANDROID_SDK_PACKAGES}
+RUN mkdir /root/.android/
+RUN touch /root/.android/repositories.cfg
 RUN yes Y | sdkmanager --licenses 
+RUN yes Y | sdkmanager --verbose --no_https ${ANDROID_SDK_PACKAGES} 
 
 # avdmanager
 ENV EMULATOR_NAME_x86="android_x86"
