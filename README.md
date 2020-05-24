@@ -170,3 +170,9 @@ docker run --privileged -it \
 android-container:sunflower \
 bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
 ```
+
+## License
+
+Released under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0). 
+
+Read the [LICENSE](https://raw.githubusercontent.com/fastphat/android-container/master/LICENSE) for more details.
