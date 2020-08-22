@@ -9,169 +9,161 @@
 
 * No Android Studio/GUI applications required.
 * Android emulator runs on a Docker container.
-* Accelerates build speed and stablize testing process, especially UI Tests.
-* Has ability to cache Gradle distribution and dependencies.
+* Accelerates build speed and stabilize testing process, especially UI Tests.
+* Performance boost with Gradle dependencies and distribution caching.
 
-
+# Remarks
+* MacOS or any solution which uses VirtualBox to embed Docker can't run x86 emulator because [nested virtualization](https://www.virtualbox.org/ticket/4032) is yet to support. In the contrary, ARM CPU is host machine independent, which can run anywhere, however _it was deprecated and extremely slow to boot_.  
+* In the scope of this repo, x86 Emulator is chosen as default startup emulator since it is 10x faster than ARM. _KVM & nested virtualization will be needed_ so Linux-based OS as host system is recommended, especially if you want to build a CI machine with this image.    
+ 
+# Quick start 
+ 
+We'll try to build and run E2E testing with project [Sunflower](https://github.com/android/sunflower).
+ 
+Step 1: Build image with name & tag: `android-container:sunflower`
+ 
+ ```shell
+ docker build -t android-container:sunflower .
+ ```
+ 
+Step 2: Clone and go to top level directory of `sunflower`
+ 
+ ```shell
+ git clone https://github.com/android/sunflower && cd sunflower/
+ ```
+ 
+ Step 3: Run with privileged permission in order to boot emulator on the container, then run gradle tasks (build project and run test suite)
+ 
+ ```shell
+ docker run --privileged -it \
+ --rm -v $PWD:/data -v gradle-cache:/cache android-container:sunflower \
+ bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
+ ```
+ 
 # Gradle
-You can either use Gradle Wrapper or Local Installation but first option is recommended because of following reasons.
-
-* Reliable: Different users get the same result on any give gradle version.
-* Configurable: Say that to update new gradle version to different users and execution environments (IDE, CI machine, etc), you only need to edit the config file, gradl wrapper will take care the rest.
+You can either execute Gradle Wrapper or Local Installation but first option is [more preferable](https://docs.gradle.org/current/userguide/gradle_wrapper.html)
+> In a nutshell you gain the following benefits:
+>  * Standardizes a project on a given Gradle version, leading to more reliable and robust builds.
+>  * Provisioning a new Gradle version to different users and execution environment (e.g. IDEs or Continuous Integration servers) is as simple as changing the Wrapper definition. 
 
 
 ### Get the idea of Gradle Wrapper
-Gradle wrapper is a script that allow you to run the build with predefined version and settings. These distribution information is stored in `gradle/wrapper/gradle-wrapper.properties`
+Gradle wrapper is a script that allow you to run the build with predefined version and settings. The generated Wrapper properties file, `gradle/wrapper/gradle-wrapper.properties`, stores the information about the Gradle distribution.
 
 ![gradle wrapper properties](https://github.com/fastphat/android-container/blob/master/images/gradle-wrapper.png?raw=true)
 
-To change the version of gradle wrapper, grab one at [https://services.gradle.org/distributions/](https://services.gradle.org/distributions/) and update `distributionUrl` accordingly.
+Wanna use newer version? Grab one at [here](https://services.gradle.org/distributions/) and update `distributionUrl` accordingly. 
 
-### Speed up build with gradle caching
-By default all files downloaded under docker container doesn't persist if that container is removed. Therefore, gradle needs to download dependencies for every build, including gradle distribution and app libraries.
-
-To prevent that behavior, Docker offers a solution called [Volume](https://docs.docker.com/storage/). Volumes are typically directories or files on host filesystem and are accessible from both container and host. They will not be removed after the container is wiped out.
-
-The Gradle cached files are by default located under `GRADLE_USER_HOME` ( `/` ), so you can keep them there and move to another director. Docker will persist them as long as you define a volume for that directory. 
+### Speed up build with Gradle Caching
+By default, all files downloaded under docker container doesn't persist if the container is removed. 
+Therefore, they will be re-downloaded in every build. 
+However, Docker offers a solution called [Volume](https://docs.docker.com/storage/). 
+It is typically directories or files on host filesystem and can be accessible from both container and host machine.
+You just need to define a location where the volume references to and let it take care the rest.
+Consider this following script and image:
 
 ```
 ENV GRADLE_USER_HOME=/cache
 VOLUME $GRADLE_USER_HOME
 ```
 
-![docker volume](https://github.com/fastphat/android-container/blob/master/images/docker-volume.png?raw=true)
+<img src="https://github.com/fastphat/android-container/blob/master/images/docker-volume.png?raw=true" width="350px" /> <br/>  
 
-Ok. Looks good, check out these directories to see how things are wired up on host machine:
 
-- On Macos: `screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty`
-- On Linux: under `~/var/lib/docker/volumes`
+You can always check where the volumes are located and how they work:
 
-Some useful commands for Docker volume:
+- On Macos: 
+```shell
+~/Library/Containers/com.docker.docker/Data/vms/0/tty
+```
 
-* To list all volumes are being use: `docker volume ls`
-* To get detailed information of a specific volume, `docker volume inspect [volume_id]`
+- On Linux: 
+```shell
+~/var/lib/docker/volumes
+```
+
+- To list all volumes are being use: 
+```shell
+docker volume ls
+```
+
+- To get all properties of a volume:
+```shell 
+docker volume inspect [volume_id]
+```
 
 ### Non-cached vs cached gradle dependencies
 
-55s instead of 4m 25s for doing the same task. Ok, I have 3 mins to make a cup of coffee ☕☕
-
-![build time comparision](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
-
-# Emulator (x86 or ARM)
-
-![warning emulator](https://github.com/fastphat/android-container/blob/master/images/arm.png?raw=true)
-
-You probably see this prompt when booting an ARM-based emulator. They were old and deprecated since Android SDK Level 25. In the contrary, x86 (or x86_64) emulators are 10x faster. However, it requires your host to have hardware acceleration (HAXM on Mac & Windows, QEMU on Linux). 
-
-I won't go too detail about architecture defination but focus more on improving the stability and perfomance of Android Emulator when perfoming UI tests. 
-
-### Ability to run UI Test on any host machine
-The script below simply checks whether host system supports Hardware Accelerator and KVM to run x86 emulator rather than ARM.
+In some circumstances, you will see this one is huge improvement, especially when a project has used ton of dependencies. Let's see the different between cached and non-cached gradle for Sunflower project.   
 
 ```shell
-  cpu_support_hardware_acceleration=$(grep -cw ".*\(vmx\|svm\).*" /proc/cpuinfo)
-  kvm_support=$(kvm-ok)
+BUILD SUCCESSFULL in 4m 25s
+...
+...
+BUILD SUCCESSFULL in 55s 
+``` 
 
-  emulator_name=${EMULATOR_NAME_ARM}
-  if [ "$cpu_support_hardware_acceleration" != 0 ] && [ "$kvm_support" != *"NOT"* ]; then
-    emulator_name=${EMULATOR_NAME_x86}
-  fi
+![build time comparison](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
+
+# Android Emulator
+<img src="https://github.com/fastphat/android-container/blob/master/images/arm.png?raw=true" width="600px" />
+
+If you're familiar with Android Studio, you definitely experience this warning when booting ARM emulators. They were old and deprecated since Android SDK 25. In the contrary, x86 emulators are 10x faster, but it needs hardware acceleration to run (HAXM on Mac & Windows, QEMU on Linux). On Docker, you will also need `Nested Virtualization`, which is not available on Virtual Box. So Linux-based OS is recommended in order to make it compatible with this image.   
+
+### Check the availability of running android emulator in docker container
+The script below simply checks if kvm & nested virtualization is supported. 
+
+```shell
+function check_kvm() {
+    cpu_support_hardware_acceleration=$(grep -cw ".*\(vmx\|svm\).*" /proc/cpuinfo)
+    kvm_support=$(kvm-ok)
+    if [ "$cpu_support_hardware_acceleration" != 0 ] && [ "$kvm_support" != *"NOT"* ]; then
+      echo 1
+    else
+      echo 0
+    fi
+}
 ```
 
 ### Reduce flaky tests
-Disable animation when Android emulator is fully loaded and ready to use.
+You can turn off following animations by using `adb shell` ( these can be found in developer options )
+* Window animation scale
+* Transition animation scale
+* Animation duration scale
 
 ```shell
-#!/bin/bash
-
-function wait_emulator_to_be_ready() {
-  cpu_support_hardware_acceleration=$(grep -cw ".*\(vmx\|svm\).*" /proc/cpuinfo)
-  kvm_support=$(kvm-ok)
-
-  emulator_name=${EMULATOR_NAME_ARM}
-  if [ "$cpu_support_hardware_acceleration" != 0 ] && [ "$kvm_support" != *"NOT"* ]; then
-    emulator_name=${EMULATOR_NAME_x86}
-  fi
-
-  adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
-  emulator -avd "${emulator_name}" -verbose -no-boot-anim -no-window -gpu off &
-  boot_completed=false
-  while [ "$boot_completed" == false ]; do
-    status=$(adb wait-for-device shell getprop sys.boot_completed | tr -d '\r')
-    echo "Boot Status: $status"
-
-    if [ "$status" == "1" ]; then
-      boot_completed=true
-    else
-      sleep 1
-    fi
-  done
-}
-
 function disable_animation() {
   adb shell "settings put global window_animation_scale 0.0"
   adb shell "settings put global transition_animation_scale 0.0"
   adb shell "settings put global animator_duration_scale 0.0"
 }
 
-wait_emulator_to_be_ready
-sleep 1
-disable_animation
-
 ```
 
-Some additional adb commands that helps you avoid flaky tests in some common cases:
+You can also disable keyboard or customize default locale language
 
 ```shell
-# Disable soft keyboard
-adb shell settings put secure show_ime_with_hard_keyboard 0
-# Set the default locale 
+adb shell settings put secure show_ime_with_hard_keyboard 0 
 adb shell am broadcast -a com.android.intent.action.SET_LOCALE --es com.android.intent.extra.LOCALE EN
 
 ```
 
 ### Emulator startup options
-
-Here are some basic options for faster booting Emulator. Unlikne adb, you can only specify those when starting the emulator, not later on. Consider this command:
-
-
-```
-emulator -avd ${EMULATOR_NAME} -no-boot-anim -no-window -gpu off -accel auto -memory 2048 -skin 1440x2880
-```
-
-* `-no-boot-anim`: Disable the boot animation during emulator startup for faster booting
-* `-acel auto`: Determine automatically if acceleration is supported and use it when possible
-* `-no-window -gpu off`: This option is useful when running the emulator on servers that have no display. You'll still be able to access the emulator through adb or the console. UI tests result logs normally.
-* `-skin 1440x2880`: In case you want the screen has enough room of item views, especially with ListView or RecyclerView. Use it at your risk, it's better to handle them properly. You always have customer using small android phone.
-* `-memory 2048`: Specify the physical RAM size from 128 to 4096 MBs, especially suits with high permomance machine. 4GB RAM, why not?
-
-# Build Steps 
-
-Let's use [Sunflower](https://github.com/android/sunflower) as sample.
-
-Build new Docker Image with name `android-container` and tag `sunflower`:
+Unlike `adb`, you can only specify emulator options when starting it, not later on. Consider following command & options: 
 
 ```shell
-docker build -t android-container:sunflower .
+emulator -avd ${EMULATOR_NAME} -no-boot-anim -no-window -no-boot-anim -wipe-data -no-snapshot -gpu off -accel auto -memory 2048 -skin 1440x2880
 ```
 
-Clone and go to top level directory of Sunflower project:
+* `-no-boot-anim` Disable the boot animation
+* `-acel auto` Determine automatically if acceleration is supported and use it when possible
+* `-no-window -gpu off` This option is useful when running the emulator on headless servers. You'll still be able to access the emulator through adb or the console.
+* `-skin 1440x2880` In case you want the screen has more room, especially with list of items. Use it at your risk, it would be better to support different screen sizes.
+* `-memory 2048` Building CI Server with 4GB physical RAM, why not? 
+* `-wipe-data` Delete user data and fresh start emulator 
+* `-no-snapshot` Start app from initital state and delete snapshot data when emulator is closed
 
-```shell
-git clone https://github.com/android/sunflower && cd sunflower/
-```
-
-Mount `/sunflower` into container as `/data`, use volume `gradle-cache`, which is pointed to `/cache` in the container and run Gradle tasks!
-
-```shell
-docker run --privileged -it \
---rm -v $PWD:/data \
--v gradle-cache:/cache \
-android-container:sunflower \
-bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
-```
-
-## License
+# License
 
 Released under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0). 
 
