@@ -6,13 +6,16 @@
 [![Build Status](https://travis-ci.com/fastphat/android-container.svg?branch=master)](https://travis-ci.com/fastphat/android-container)
 
 # Goals
-
 * No Android Studio/GUI applications required.
 * Android emulator runs on a Docker container.
 * Accelerates build speed and stabilize testing process, especially UI Tests.
 * Performance boost with Gradle dependencies and distribution caching.
 
+# Release notes
+Change logs can be found [here](https://github.com/fastphat/android-container/blob/master/release-notes.md)  
+
 # Remarks
+* No additional ARG(s) need to be provided in order to run this image. However, feel free to extend it, install Flutter for example?     
 * MacOS or any solution which uses VirtualBox to embed Docker can't run x86 emulator because [nested virtualization](https://www.virtualbox.org/ticket/4032) is yet to support. In the contrary, ARM CPU is host machine independent, which can run anywhere, however _it was deprecated and extremely slow to boot_.  
 * In the scope of this repo, x86 Emulator is chosen as default startup emulator since it is 10x faster than ARM. _KVM & nested virtualization will be needed_ so Linux-based OS as host system is recommended, especially if you want to build a CI machine with this image.    
  
@@ -155,13 +158,15 @@ Unlike `adb`, you can only specify emulator options when starting it, not later 
 emulator -avd ${EMULATOR_NAME} -no-boot-anim -no-window -no-boot-anim -wipe-data -no-snapshot -gpu off -accel auto -memory 2048 -skin 1440x2880
 ```
 
-* `-no-boot-anim` Disable the boot animation
-* `-acel auto` Determine automatically if acceleration is supported and use it when possible
-* `-no-window -gpu off` This option is useful when running the emulator on headless servers. You'll still be able to access the emulator through adb or the console.
-* `-skin 1440x2880` In case you want the screen has more room, especially with list of items. Use it at your risk, it would be better to support different screen sizes.
-* `-memory 2048` Building CI Server with 4GB physical RAM, why not? 
-* `-wipe-data` Delete user data and fresh start emulator 
-* `-no-snapshot` Start app from initital state and delete snapshot data when emulator is closed
+| Option                   | Description                                                                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| -no-boot-anim            | Disable the boot animation                                                                                                                          |
+| -acel auto               | Determine automatically if acceleration is supported and use it when possible                                                                       |
+| -no-window -gpu off      | This option is useful when running the emulator on headless servers. <br>You'll still be able to access the emulator through adb or the console         |
+| -skin 1440x2880          | In case you want the screen has more room, especially with list of items. <br>Use it at your risk, it would be better to support different screen sizes |
+| -memory 2048             | Building CI Server with 4GB physical RAM, why not?                                                                                                  |
+| -wipe-data               | Delete user data and fresh start emulator                                                                                                           |
+| -no-snapshot             | Start app from initial state and delete snapshot data when emulator is closed                                                                      |
 
 # License
 
