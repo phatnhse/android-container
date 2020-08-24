@@ -1,10 +1,11 @@
-FROM ubuntu:18.04
+FROM alpine:3.12
 
 WORKDIR /
 
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/sh", "-c"]
 
-RUN apt update && apt install -y cpu-checker openjdk-8-jdk wget unzip libglu1 libpulse-dev libasound2 libc6  libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxi6  libxtst6 libnss3
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git unzip wget openjdk8 libvirt-daemon qemu-img qemu-system-x86_64 dbus polkit virt-manager
 
 # gradle caching
 ENV GRADLE_USER_HOME=/cache
@@ -34,9 +35,8 @@ RUN echo "no" | avdmanager --verbose create avd --force --name "${EMULATOR_NAME_
 ENV LD_LIBRARY_PATH "$ANDROID_HOME/emulator/lib64:$ANDROID_HOME/emulator/lib64/qt/lib"
 
 # clean up
-RUN  apt-get remove -y unzip wget && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*   
+RUN apk del unzip wget && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/apk/*
 
 ADD start.sh /
 RUN chmod +x start.sh

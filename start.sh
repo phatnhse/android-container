@@ -35,7 +35,8 @@ function wait_emulator_to_be_ready() {
 function start_emulator_if_possible() {
   check_kvm=$(check_kvm)
   if [ "$check_kvm" != "1" ]; then
-    echo "kvm nested virtualization is not supported"
+    echo "run emulator failed, nested virtualization is not supported"
+    return
   else
     wait_emulator_to_be_ready
     sleep 1

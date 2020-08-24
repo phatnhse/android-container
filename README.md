@@ -40,8 +40,13 @@ Step 2: Clone and go to top level directory of `sunflower`
  ```shell
  docker run --privileged -it \
  --rm -v $PWD:/data -v gradle-cache:/cache android-container:sunflower \
- bash -c '. /start.sh && /data/gradlew test connectedAndroidTest -p /data'
+ bash -c '. /start.sh && /data/gradlew test -p /data'
  ```
+
+If you want to run UI test, make sure KVM is enable and run this gradle task `connectedAndroidTest` (See section #Emulator below)
+```shell
+/data/gradlew test connectedAndroidTest -p /data
+```
  
 # Gradle
 You can either execute Gradle Wrapper or Local Installation but first option is [more preferable](https://docs.gradle.org/current/userguide/gradle_wrapper.html)
