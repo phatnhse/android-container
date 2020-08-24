@@ -2,8 +2,7 @@
 
 function check_kvm() {
   cpu_support_hardware_acceleration=$(grep -cw ".*\(vmx\|svm\).*" /proc/cpuinfo)
-  kvm_support=$(kvm-ok)
-  if [ "$cpu_support_hardware_acceleration" != 0 ] && [ "$kvm_support" != *"NOT"* ]; then
+  if [ "$cpu_support_hardware_acceleration" != 0 ]; then
     echo 1
   else
     echo 0
@@ -35,7 +34,8 @@ function wait_emulator_to_be_ready() {
 function start_emulator_if_possible() {
   check_kvm=$(check_kvm)
   if [ "$check_kvm" != "1" ]; then
-    echo "kvm nested virtualization is not supported"
+    echo "run emulator failed, nested virtualization is not supported"
+    return
   else
     wait_emulator_to_be_ready
     sleep 1

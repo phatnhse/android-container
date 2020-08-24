@@ -27,3 +27,17 @@ docker pull codecaigicungduoc/android-container:1.1
 | Ubuntu                      | 18:04        | Base image                          |
 | Build Tools                 | 30.0.0       | Android SDK Build-Tools (May 2020)  |
 | Java                        | 1.8.0_242    | Java8                               |
+
+### Release-v1.2
+```console
+docker pull codecaigicungduoc/android-container:1.2
+```
+**Change Log**
+* Use alpine as base image
+* Show descriptive error message when emulator can be started
+
+| Component                   | Version      | Description                         |
+|-----------------------------|--------------|-------------------------------------|
+| Alpine                      | 3.12         | Base image                          |
+| Build Tools                 | 30.0.0       | Android SDK Build-Tools (May 2020)  |
+| Java                        | 1.8.0_242    | Java8                               |
