@@ -1,11 +1,10 @@
-FROM alpine:3.12
+FROM adoptopenjdk/openjdk8:alpine
 
 WORKDIR /
 
 SHELL ["/bin/sh", "-c"]
 
-RUN apk update && apk upgrade && \
-    apk add --no-cache bash git unzip wget openjdk8 libvirt-daemon qemu-img qemu-system-x86_64 dbus polkit virt-manager
+RUN apk update && apk upgrade && apk add --no-cache bash git unzip wget libvirt-daemon qemu-img qemu-system-x86_64 dbus polkit virt-manager
 
 # gradle caching
 ENV GRADLE_USER_HOME=/cache
