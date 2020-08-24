@@ -9,10 +9,13 @@ function check_kvm() {
   fi
 }
 
-function disable_animation() {
+function config_emulator_settings() {
   adb shell "settings put global window_animation_scale 0.0"
   adb shell "settings put global transition_animation_scale 0.0"
   adb shell "settings put global animator_duration_scale 0.0"
+  adb shell "settings put global always_finish_activities 1"
+  adb shell "settings put secure show_ime_with_hard_keyboard 0"
+  adb shell "am broadcast -a com.android.intent.action.SET_LOCALE --es com.android.intent.extra.LOCALE EN"
 }
 
 function wait_emulator_to_be_ready() {
@@ -39,7 +42,7 @@ function start_emulator_if_possible() {
   else
     wait_emulator_to_be_ready
     sleep 1
-    disable_animation
+    config_emulator_settings
   fi
 }
 
