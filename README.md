@@ -29,7 +29,7 @@ Change logs can be found [here](https://github.com/fastphat/android-container/bl
           [instructions](https://cloud.google.com/compute/docs/instances/enable-nested-virtualization-vm-instances)
           to enable nested virtualization.
  
-# Quick start 
+# Quick start
  
 We'll try to build and run E2E testing with project [Sunflower](https://github.com/android/sunflower).
  
@@ -122,6 +122,34 @@ BUILD SUCCESSFULL in 55s
 ``` 
 
 ![build time comparison](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
+
+# Install missing android sdk packages
+To get full list of install SDK packages, run:
+```shell script
+sdkmanager  --list | awk '/Installed packages/{flag=1; next} /Available Packages/{flag=0} flag' | awk '{ print $1  }'
+```
+The output will look like this 
+```shell script
+Path
+-------
+build-tools;27.0.3
+build-tools;28.0.3
+cmake;3.10.2.4988404
+emulator
+extras;android;m2repository
+extras;google;m2repository
+ndk-bundle
+ndk;21.0.6113669
+patcher;v4
+platform-tools
+...
+```
+
+Copy required packages to `android-packages` file. Remember to add new line for each package.
+```
+cmake;3.10.2.4988404
+ndk;21.0.6113669
+```
 
 # Android Emulator
 <img src="https://github.com/fastphat/android-container/blob/master/images/arm.png?raw=true" width="600px" />
