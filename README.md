@@ -27,8 +27,7 @@ Change logs can be found [here](https://github.com/fastphat/android-container/bl
           to enable nested virtualization.
      - GCE: Follow these
           [instructions](https://cloud.google.com/compute/docs/instances/enable-nested-virtualization-vm-instances)
-          to enable nested virtualization.
- 
+          to enable nested virtualization. 
 # Quick start
  
 We'll try to build and run E2E testing with project [Sunflower](https://github.com/android/sunflower).
@@ -45,7 +44,7 @@ Step 2: Clone and go to top level directory of `sunflower`
  git clone https://github.com/android/sunflower && cd sunflower/
  ```
  
- Step 3: Run with privileged permission in order to boot emulator on the container, then run gradle tasks (build project and run test suite)
+Step 3: Run with privileged permission in order to boot emulator on the container, then run gradle tasks (build project and run test suite)
  
  ```shell
  docker run --privileged -it \
@@ -53,11 +52,57 @@ Step 2: Clone and go to top level directory of `sunflower`
  bash -c '. /start.sh && /data/gradlew test -p /data'
  ```
 
-If you want to run UI test, make sure KVM is enable and run this gradle task `connectedAndroidTest` (See section #Emulator below)
+If you want to run UI test, make sure KVM is enable and run this gradle task `connectedAndroidTest` (See [Emulator](https://github.com/fastphat/android-container#android-emulator))
 ```shell
 /data/gradlew test connectedAndroidTest -p /data
 ```
+
+ # Android SDK Packages Management
+These following components will be automatically downloaded and installed by default: 
+ ```shell script
+# adb    
+platform-tools
  
+# avdmanager and sdkmanager
+tools 
+
+# emulator toolkit
+emulator
+
+# build tools
+platforms;android:30
+
+# android virtual device
+system-images;android:30;google_apis;x86 
+```
+ 
+To install additional components, specific them with `ANDROID_SDK_PACKGES_EXTRA` when build with Dockerfile. Remember to add single space between components. Some typical filters:
+ ```shell script
+ANDROID_SDK_PACKAGES_EXTRA="ndk;21.0.6113669 cmake;3.10.2.4988404"
+```
+ 
+ To get full list of **installed components**, run:
+ ```shell script
+ sdkmanager  --list | awk '/Installed packages/{flag=1; next} /Available Packages/{flag=0} flag' | awk '{ print $1  }'
+ ```
+ 
+ The output will look like this:
+ ```shell script
+ Path
+ -------
+ build-tools;27.0.3
+ build-tools;28.0.3
+ cmake;3.10.2.4988404
+ emulator
+ extras;android;m2repository
+ extras;google;m2repository
+ ndk-bundle
+ ndk;21.0.6113669
+ patcher;v4
+ platform-tools
+ ...
+ ```
+
 # Gradle
 You can either execute Gradle Wrapper or Local Installation but first option is [more preferable](https://docs.gradle.org/current/userguide/gradle_wrapper.html)
 > In a nutshell you gain the following benefits:
@@ -122,34 +167,6 @@ BUILD SUCCESSFULL in 55s
 ``` 
 
 ![build time comparison](https://github.com/fastphat/android-container/blob/master/images/build-time.png?raw=true)
-
-# Install missing android sdk packages
-To get full list of install SDK packages, run:
-```shell script
-sdkmanager  --list | awk '/Installed packages/{flag=1; next} /Available Packages/{flag=0} flag' | awk '{ print $1  }'
-```
-The output will look like this 
-```shell script
-Path
--------
-build-tools;27.0.3
-build-tools;28.0.3
-cmake;3.10.2.4988404
-emulator
-extras;android;m2repository
-extras;google;m2repository
-ndk-bundle
-ndk;21.0.6113669
-patcher;v4
-platform-tools
-...
-```
-
-Copy required packages to `android-packages` file. Remember to add new line for each package.
-```
-cmake;3.10.2.4988404
-ndk;21.0.6113669
-```
 
 # Android Emulator
 <img src="https://github.com/fastphat/android-container/blob/master/images/arm.png?raw=true" width="600px" />
