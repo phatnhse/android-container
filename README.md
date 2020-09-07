@@ -18,16 +18,7 @@ Change logs can be found [here](https://github.com/fastphat/android-container/bl
 * No additional ARG(s) need to be provided in order to run this image.     
 * Linux only. MacOS/Window or any solution which uses VirtualBox to embed Docker can't run x86 emulator because [nested virtualization](https://www.virtualbox.org/ticket/4032) is yet to support. In the contrary, ARM CPU is host machine independent, which can run anywhere, however _it was deprecated and extremely slow to boot_.  
 * In the scope of this repo, x86 Emulator is chosen as default startup emulator since it is [10x faster](https://stackoverflow.com/questions/2662650/making-the-android-emulator-run-faster) than ARM. _KVM & nested virtualization will be needed_ so Linux-based OS as host system is required, especially if you want to build a CI machine with this image.    
-* If you're planning to host this image on cloud, make sure you can access KVM and nested virtualization is available to use. 
-     - AWS provides [bare
-          metal](https://aws.amazon.com/about-aws/whats-new/2019/02/introducing-five-new-amazon-ec2-bare-metal-instances/)
-          instances that provide access to KVM.
-     - Azure: Follow these
-          [instructions](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/nested-virtualization)
-          to enable nested virtualization.
-     - GCE: Follow these
-          [instructions](https://cloud.google.com/compute/docs/instances/enable-nested-virtualization-vm-instances)
-          to enable nested virtualization. 
+
 # Quick start
  
 We'll try to build and run E2E testing with project [Sunflower](https://github.com/android/sunflower).
